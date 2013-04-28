@@ -3,16 +3,13 @@ package com.pahimar.ee3.lib;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Level;
 
+import com.pahimar.ee3.core.helper.JarFileEnumerationHelper;
 import com.pahimar.ee3.core.helper.LogHelper;
 
 /**
@@ -99,6 +96,21 @@ public class Localizations {
     private static void parseJarFile(URL resourceURL) throws UnsupportedEncodingException, IOException {
         LogHelper.log(Level.INFO, "Loading JAR");
         
+        // Iterate over entries
+        ArrayList<String> files = new ArrayList<String>();
+        JarFileEnumerationHelper testIter = new JarFileEnumerationHelper(resourceURL);
+        while (testIter.hasMoreElements()) {
+            JarEntry nextOne = testIter.nextElement();
+            String jarSubPath = testIter.getRelativePath(nextOne);
+            if (testIter.isEntryFile(nextOne)) {
+                // If file and not dir add to list
+                files.add(LANG_RESOURCE_LOCATION + jarSubPath);
+                LogHelper.log(Level.INFO, "Added localization file: " + jarSubPath);
+            }
+        }
+        
+        /*
+        
         // Getting Jar file Object
         String jarFileString = resourceURL.getPath().substring(5, resourceURL.getPath().indexOf("!"));
         JarFile jarFile = new JarFile(URLDecoder.decode(jarFileString, "UTF-8"));
@@ -118,7 +130,7 @@ public class Localizations {
                     LogHelper.log(Level.INFO, "Added localization file: " + jarSubPath);
                 }
             }
-        }
+        }*/
         
         localeFiles = files.toArray(new String[files.size()]);
     }
